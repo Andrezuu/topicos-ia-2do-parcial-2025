@@ -1,7 +1,6 @@
 import os
 import sqlite3
 import csv
-import ast
 
 
 def execute_sql(conn: sqlite3.Connection, query: str, query_history: list[str] | None = None) -> str:
@@ -18,7 +17,7 @@ def execute_sql(conn: sqlite3.Connection, query: str, query_history: list[str] |
         # Check if it was a query that returns data (SELECT)
         if cursor.description:
             rows = cursor.fetchall()
-            return str(rows)  # Return data as a string
+            return str(rows)  
         else:
             conn.commit()
             return "Query executed successfully (no data returned)."
@@ -50,12 +49,6 @@ def save_data_to_csv(data: list[tuple] | str, filename: str) -> str:
     """
     print(f"   [Tool Action] Saving data to {filename}...")
     try:
-        if isinstance(data, str):
-            try:
-                data = ast.literal_eval(data)
-            except:
-                return f"Error: Could not parse data string: {data}"
-        
         if not data:
             return "Error: No data provided to save."
         
