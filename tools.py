@@ -42,11 +42,39 @@ def get_schema(conn: sqlite3.Connection, table_name: str | None = None) -> str:
         return str([table[0] for table in tables])
 
 
-def save_data_to_csv(data: list[tuple], filename: str) -> str:
+def save_data_to_csv(data: list[tuple] | str, filename: str) -> str:
     """
-    ===> YOUR TOOL DESCRIPTION HERE
+    Saves query results to a CSV file.
+    Args:
+        data: List of tuples/lists or string representation of query results
+        filename: Name of the output CSV file
+    Returns:
+        String describing the operation result
     """
     print(f"   [Tool Action] Saving data to {filename}...")
-    ### ========================= ###
-    # YOUR TOOL IMPLEMENTATION HERE
-    ### ========================= ###
+    try:
+        if isinstance(data, str):
+            try:
+                data = eval(data)
+            except:
+                return f"Error: Could not parse data string: {data}"
+        
+        if not data:
+            return "Error: No data provided to save."
+        
+        if not isinstance(data, list):
+            return "Error: Data must be a list of tuples or lists."
+        
+        base_dir = os.path.join(os.getcwd(), "files")
+        os.makedirs(base_dir, exist_ok=True)
+        file_path = os.path.join(base_dir, filename)+'csv'
+        with open(file_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerows(data)
+        
+        # Get absolute path
+        abs_path = os.path.abspath(file_path)
+        return f"Data saved successfully to: {abs_path}"
+    
+    except Exception as e:
+        return f"Error saving CSV: {str(e)}"

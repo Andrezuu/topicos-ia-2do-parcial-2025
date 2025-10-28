@@ -8,7 +8,8 @@ from tools import execute_sql, get_schema, save_data_to_csv
 # --- DSPy Agent Definition ---
 class SQLAgentSignature(dspy.Signature):
     """
-    ====> (1.1.1) YOUR AWESOME DESCRIPTION/PROMPT HERE
+    ====> (1.1.1) This agent answers questions about SQL databases,
+    using an initial schema to guide querying and generate natural language responses.
     """
 
     question = dspy.InputField(desc="The user's natural language question.")
@@ -51,28 +52,27 @@ def create_agent(conn: sqlite3.Connection, query_history: list[str] | None = Non
 
     execute_sql_tool = dspy.Tool(
         name="execute_sql",
-        # ===> (1.1.2) YOUR execute_sql TOOL DESCRIPTION HERE
-        desc="",
+        desc="Executes a SQL query and returns the results.",
         # Use lambda to pass the 'conn' object
         func=lambda query: execute_sql(conn, query, query_history),
     )
 
     get_schema_tool = dspy.Tool(
         name="get_schema",
-        # ===> (1.1.2) YOUR get_schema_tool TOOL DESCRIPTION HERE
-        desc="",
+        # ===> (1.1.2) Tool to get the schema of a specific table.
+        desc="Returns the schema of the requested table.",
         # Use lambda to pass the 'conn' object
         func=lambda table_name: get_schema(conn, table_name),
     )
 
     save_csv_tool = dspy.Tool(
         name="save_data_to_csv",
-        # ===> YOUR save_csv_tool TOOL DESCRIPTION HERE
-        desc="",
+        # ===> Tool to save data to a CSV file.
+        desc="Saves the query results to a CSV file.",
         func=save_data_to_csv
     )
 
-    all_tools = [execute_sql_tool, get_schema_tool]     # Add save_csv_tool when completed
+    all_tools = [execute_sql_tool, get_schema_tool, save_csv_tool]     # Add save_csv_tool when completed
 
     # 2. Instantiate and run the agent
     agent = SQLAgent(tools=all_tools)

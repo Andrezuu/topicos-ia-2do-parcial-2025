@@ -9,7 +9,7 @@ import dspy
 from pydantic import BaseModel
 
 from database import setup_database
-from tools import get_schema, execute_sql
+from tools import get_schema, execute_sql, save_data_to_csv
 from agent import create_agent
 
 app = FastAPI(title="AI db assistant")
@@ -66,7 +66,13 @@ def query_database(
     db_schema: Annotated[str, Depends(get_db_schema)],
     agent: Annotated[dspy.Module, Depends(get_agent)],
     user_query : str = Body(..., embed=True),
+    filename: str | None = Body(None, embed=True),
 ) -> AgentResponse:
+    if filename:
+        user_query = (
+            f"{user_query}\n"
+            f"Además, guarda el resultado tabular en un archivo CSV en la ruta '{filename}'."
+        )
     response = query_agent(agent, user_query, db_schema)
     return response
 
@@ -92,7 +98,7 @@ def get_async_query_result(
 ) -> AgentAsyncStartResponse | AgentAsyncFinishResponse:
     result = execute_sql(db_conn, f"SELECT * FROM queries WHERE id = '{query_id}'")
     rows = ast.literal_eval(result)
-    if not rows:
+    if not rows or not rows[0][2]:
         return AgentAsyncStartResponse(
             query_id=query_id,
             status="pending",
