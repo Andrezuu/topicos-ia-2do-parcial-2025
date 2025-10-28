@@ -45,11 +45,6 @@ def get_schema(conn: sqlite3.Connection, table_name: str | None = None) -> str:
 def save_data_to_csv(data: list[tuple] | str, filename: str) -> str:
     """
     Saves query results to a CSV file.
-    Args:
-        data: List of tuples/lists or string representation of query results
-        filename: Name of the output CSV file
-    Returns:
-        String describing the operation result
     """
     print(f"   [Tool Action] Saving data to {filename}...")
     try:
@@ -67,7 +62,7 @@ def save_data_to_csv(data: list[tuple] | str, filename: str) -> str:
         
         base_dir = os.path.join(os.getcwd(), "files")
         os.makedirs(base_dir, exist_ok=True)
-        file_path = os.path.join(base_dir, filename)+'csv'
+        file_path = os.path.join(base_dir, filename)+'.csv'
         with open(file_path, 'w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
             writer.writerows(data)
