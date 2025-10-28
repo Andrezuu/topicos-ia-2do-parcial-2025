@@ -55,7 +55,7 @@ def query_agent(
     )
     if track_query and query_id is not None:
         results_json = results.model_dump_json()
-        update_query = f"UPDATE queries SET result='{results_json}' WHERE query_id='{query_id}';"
+        update_query = f"UPDATE queries SET result='{results_json}' WHERE id='{query_id}';"
         execute_sql(db_conn, update_query)
     query_history.clear()
 
