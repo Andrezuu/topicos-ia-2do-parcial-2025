@@ -66,13 +66,7 @@ def query_database(
     db_schema: Annotated[str, Depends(get_db_schema)],
     agent: Annotated[dspy.Module, Depends(get_agent)],
     user_query : str = Body(..., embed=True),
-    filename: str | None = Body(None, embed=True),
 ) -> AgentResponse:
-    if filename:
-        user_query = (
-            f"{user_query}\n"
-            f"Además, guarda el resultado tabular en un archivo CSV en la ruta '{filename}'."
-        )
     response = query_agent(agent, user_query, db_schema)
     return response
 

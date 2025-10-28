@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import csv
+import ast
 
 
 def execute_sql(conn: sqlite3.Connection, query: str, query_history: list[str] | None = None) -> str:
@@ -51,7 +52,7 @@ def save_data_to_csv(data: list[tuple] | str, filename: str) -> str:
     try:
         if isinstance(data, str):
             try:
-                data = eval(data)
+                data = ast.literal_eval(data)
             except:
                 return f"Error: Could not parse data string: {data}"
         
@@ -61,14 +62,21 @@ def save_data_to_csv(data: list[tuple] | str, filename: str) -> str:
         if not isinstance(data, list):
             return "Error: Data must be a list of tuples or lists."
         
+        # Normalize to tabular format
+        rows = [list(row) if isinstance(row, (list, tuple)) else [row] for row in data]
+        
+        # Ensure .csv extension
+        if not filename.lower().endswith(".csv"):
+            filename += ".csv"
+        
         base_dir = os.path.join(os.getcwd(), "files")
         os.makedirs(base_dir, exist_ok=True)
-        file_path = os.path.join(base_dir, filename)+'.csv'
+        file_path = os.path.join(base_dir, filename)
+        
         with open(file_path, 'w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
-            writer.writerows(data)
+            writer.writerows(rows)
         
-        # Get absolute path
         abs_path = os.path.abspath(file_path)
         return f"Data saved successfully to: {abs_path}"
     
